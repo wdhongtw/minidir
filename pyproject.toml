@@ -28,5 +28,4 @@ classifiers = [
 "Homepage" = "https://github.com/wdhongtw/minidir"
 
 [tool.hatch.build]
-only-include = ["src"]
 sources = ["src"]
