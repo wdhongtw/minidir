@@ -1,7 +1,7 @@
 import unittest
 import tempfile
 
-import pydir
+import minidir as pydir
 
 
 class TestFakeDirectory(unittest.TestCase):
