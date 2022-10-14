@@ -50,9 +50,6 @@ class Directory(typing.Protocol):
     def __iter__(self) -> typing.Iterator[Path]:
         pass
 
-    def add(self, path: Path, file: File) -> None:
-        pass
-
     def create(self, path: Path) -> File:
         pass
 
@@ -61,21 +58,6 @@ class Directory(typing.Protocol):
 
     def get(self, path: Path) -> File:
         pass
-
-
-class FakeFile:
-    """FakeFile is a file that can be used on "add" method for some Directory"""
-
-    _content: bytes
-
-    def __init__(self, content: bytes) -> None:
-        self._content = content
-
-    def read(self) -> bytes:
-        return self._content
-
-    def write(self, content: bytes) -> None:
-        self._content = content
 
 
 class FakeDirectory:
@@ -93,12 +75,6 @@ class FakeDirectory:
             paths.append(SomePath(key))
 
         return iter(paths)
-
-    def add(self, path: Path, file: File) -> None:
-        if str(path) in self._dir:
-            raise NameCollision()
-
-        self._dir[str(path)] = file.read()
 
     def create(self, path: Path) -> File:
         if str(path) in self._dir:
@@ -180,18 +156,6 @@ class SystemDirectory:
             paths.append(SomePath(str(relative)))
 
         return iter(paths)
-
-    def add(self, path: Path, file: File) -> None:
-        self._ensure_folder(path)
-        try:
-            with open(self._to_full_path(path), "xb") as _:
-                pass
-        except FileExistsError:
-            raise NameCollision()
-
-        self._file_paths.add(self._to_full_path(path))
-        with open(self._to_full_path(path), "wb") as file_:
-            file_.write(file.read())
 
     def create(self, path: Path) -> File:
         self._ensure_folder(path)

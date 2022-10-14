@@ -10,14 +10,11 @@ class TestFakeDirectory(unittest.TestCase):
     def test_set_get(self) -> None:
         directory = pydir.FakeDirectory()
 
-        file_foo = pydir.FakeFile(b"foo content")
-        directory.add(pydir.SomePath("foo"), file_foo)
         file_bar = directory.create(pydir.SomePath("dir/bar"))
         file_bar.write(b"bar content")
 
         self.assertDictEqual(
             {
-                "foo": b"foo content",
                 "dir/bar": b"bar content",
             },
             directory._dir,
@@ -51,14 +48,6 @@ class TestFakeDirectory(unittest.TestCase):
         with self.assertRaises(pydir.NameCollision):
             directory.create(pydir.SomePath("dir/bar"))
 
-    def test_add_collision(self) -> None:
-        directory = pydir.FakeDirectory()
-        file_foo = pydir.FakeFile(b"foo content")
-        directory.add(pydir.SomePath("foo"), file_foo)
-
-        with self.assertRaises(pydir.NameCollision):
-            directory.add(pydir.SomePath("foo"), file_foo)
-
     def test_get_not_found(self) -> None:
         directory = pydir.FakeDirectory()
 
@@ -79,21 +68,17 @@ class TestSystemDirectory(unittest.TestCase):
         with tempfile.TemporaryDirectory() as name:
 
             directory = pydir.SystemDirectory(name)
-            file_foo: pydir.File = pydir.FakeFile(b"foo content")
-            directory.add(pydir.SomePath("foo"), file_foo)
             file_bar = directory.create(pydir.SomePath("bar"))
             file_bar.write(b"bar content")
 
-            file_foo = directory.get(pydir.SomePath("foo"))
-            self.assertEqual(b"foo content", file_foo.read())
+            file_foo = directory.get(pydir.SomePath("bar"))
+            self.assertEqual(b"bar content", file_foo.read())
             directory.remove(pydir.SomePath("bar"))
 
     def test_nested_folder(self) -> None:
         with tempfile.TemporaryDirectory() as name:
 
             directory = pydir.SystemDirectory(name)
-            file_foo = pydir.FakeFile(b"foo content")
-            directory.add(pydir.SomePath("dir/dir/foo"), file_foo)
             file_bar = directory.create(pydir.SomePath("dir/bar"))
             file_bar.write(b"bar content")
 
