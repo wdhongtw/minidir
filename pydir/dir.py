@@ -1,5 +1,6 @@
 import typing
 import pathlib
+import os
 
 
 class NotFound(Exception):
@@ -157,3 +158,87 @@ class SomePath:
 
     def base(self) -> str:
         return self._path.name
+
+
+class SystemDirectory:
+    """SystemDirectory is a Directory implementation for real file system."""
+
+    _root: str
+    _file_paths: typing.Set[str]
+
+    def __init__(self, root: str):
+        self._root = root
+        self._file_paths = set()
+        for dir_path, _, files in os.walk(root):
+            for file in files:
+                self._file_paths.add(os.path.join(dir_path, file))
+
+    def __iter__(self) -> typing.Iterator[Path]:
+        paths: typing.List[Path] = []
+        for file_path in self._file_paths:
+            relative = pathlib.PurePath(file_path).relative_to(self._root)
+            paths.append(SomePath(str(relative)))
+
+        return iter(paths)
+
+    def add(self, path: Path, file: File) -> None:
+        self._ensure_folder(path)
+        try:
+            with open(self._to_full_path(path), "xb") as _:
+                pass
+        except FileExistsError:
+            raise NameCollision()
+
+        self._file_paths.add(self._to_full_path(path))
+        with open(self._to_full_path(path), "wb") as file_:
+            file_.write(file.read())
+
+    def create(self, path: Path) -> File:
+        self._ensure_folder(path)
+        try:
+            with open(self._to_full_path(path), "xb") as _:
+                pass
+        except FileExistsError:
+            raise NameCollision()
+
+        if self._to_full_path(path) in self._file_paths:
+            raise NameCollision()
+
+        self._file_paths.add(self._to_full_path(path))
+        return _SystemFile(self._to_full_path(path))
+
+    def remove(self, path: Path) -> None:
+        try:
+            os.remove(self._to_full_path(path))
+        except FileNotFoundError:
+            raise NotFound()
+        self._file_paths.remove(self._to_full_path(path))
+
+    def get(self, path: Path) -> File:
+        if self._to_full_path(path) not in self._file_paths:
+            raise NotFound()
+
+        self._file_paths.add(self._to_full_path(path))
+        return _SystemFile(self._to_full_path(path))
+
+    def _to_full_path(self, path: Path) -> str:
+        return os.path.join(self._root, str(path))
+
+    def _ensure_folder(self, path: Path) -> None:
+        path_object = pathlib.PurePath(os.path.join(self._root, str(path)))
+        os.makedirs(path_object.parent, exist_ok=True)
+
+
+class _SystemFile:
+    _path: str
+
+    def __init__(self, path: str):
+        self._path = path
+
+    def read(self) -> bytes:
+        with open(self._path, "rb") as file_:
+            return file_.read()
+
+    def write(self, content: bytes) -> None:
+        with open(self._path, "wb") as file_:
+            file_.write(content)
