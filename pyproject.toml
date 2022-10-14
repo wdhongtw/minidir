@@ -9,6 +9,12 @@ authors = [
   { name="Weida Hong", email="wdhongtw@gmail.com" },
 ]
 description = " Minimal directory interface and some implementations"
+keywords = [
+  "filesystem",
+  "directory",
+  "fake",
+  "testing",
+]
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
