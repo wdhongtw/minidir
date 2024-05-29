@@ -1,63 +1,48 @@
-import typing
-import pathlib
 import os
+import pathlib
+import typing
 
 
 class NotFound(Exception):
     """NotFound is the error that there is no file for some path."""
 
-    pass
-
 
 class NameCollision(Exception):
     """NameCollision is the error that try to create a file with invalid path."""
-
-    pass
 
 
 class File(typing.Protocol):
     """File is a interface that can read and write content."""
 
-    def read(self) -> bytes:
-        pass
+    def read(self) -> bytes: ...
 
-    def write(self, content: bytes) -> None:
-        pass
+    def write(self, content: bytes) -> None: ...
 
 
 class Path(typing.Protocol):
     """Path is a interface that represent the path and name of some file."""
 
-    def __hash__(self) -> int:
-        pass
+    def __hash__(self) -> int: ...
 
-    def __eq__(self, other) -> bool:
-        pass
+    def __eq__(self, other) -> bool: ...
 
-    def __str__(self) -> str:
-        pass
+    def __str__(self) -> str: ...
 
-    def parent(self) -> str:
-        pass
+    def parent(self) -> str: ...
 
-    def base(self) -> str:
-        pass
+    def base(self) -> str: ...
 
 
 class Directory(typing.Protocol):
     """Directory is a interface that can add, remove and iterate files"""
 
-    def __iter__(self) -> typing.Iterator[Path]:
-        pass
+    def __iter__(self) -> typing.Iterator[Path]: ...
 
-    def create(self, path: Path) -> File:
-        pass
+    def create(self, path: Path) -> File: ...
 
-    def remove(self, path: Path) -> None:
-        pass
+    def remove(self, path: Path) -> None: ...
 
-    def get(self, path: Path) -> File:
-        pass
+    def get(self, path: Path) -> File: ...
 
 
 class FakeDirectory:
