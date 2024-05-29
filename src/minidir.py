@@ -1,6 +1,6 @@
-import typing
-import pathlib
 import os
+import pathlib
+import typing
 
 
 class NotFound(Exception):
