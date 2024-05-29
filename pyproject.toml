@@ -8,7 +8,7 @@ version = "0.1.1"
 authors = [
   { name="Weida Hong", email="wdhongtw@gmail.com" },
 ]
-description = " Minimal directory interface and some implementations"
+description = "Minimal directory interface and some implementations"
 keywords = [
   "filesystem",
   "directory",
